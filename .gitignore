@@ -1,0 +1,5 @@
+.env
+.log
+.venv
+.db
+databasge/.db
