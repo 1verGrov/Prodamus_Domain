@@ -1,35 +1,44 @@
-import logging, os
+# logs.py
+import logging
+import sys
 from logging.handlers import RotatingFileHandler
 
-logger = logging.getLogger("sqlalchemy")
-logger.setLevel(logging.DEBUG)
 
-# Формат логов
-formatter = logging.Formatter(
-    "%(asctime)s [%(levelname)s] %(name)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S"
-)
+def setup_logging():
+    """Настройка логирования без перехвата stdout/stderr"""
 
-# Консольный логгер (только ошибки)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.ERROR)
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
+    # Основной логгер приложения
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
 
-# Файловый логгер (записываем всё)
-file_handler = RotatingFileHandler("app.log", maxBytes=1_000_000, backupCount=3, encoding="utf-8")
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
+    # Формат логов
+    formatter = logging.Formatter(
+        "%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
 
-# Для всех подсистем SQLAlchemy
-logging.getLogger("sqlalchemy").setLevel(logging.DEBUG)
+    # 1. Файловый вывод (всё с ротацией)
+    file_handler = RotatingFileHandler(
+        "app.log",
+        maxBytes=1_000_000,
+        backupCount=3,
+        encoding="utf-8"
+    )
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
 
-# Логирование SQL-запросов (только запросы)
-logging.getLogger("sqlalchemy.engine").setLevel(logging.ERROR)
+    # 2. Консольный вывод (дублирование в терминал)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)  # Только INFO и выше в консоль
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
 
-# Логирование ошибок в ORM
-logging.getLogger("sqlalchemy.orm").setLevel(logging.ERROR)
+    # Настройки для SQLAlchemy
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
+    logging.getLogger("sqlalchemy.orm").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.pool").setLevel(logging.WARNING)
 
-# Логирование работы пула соединений
-logging.getLogger("sqlalchemy.pool").setLevel(logging.ERROR)
+    # Для Uvicorn - оставляем его стандартные логи
+    logging.getLogger("uvicorn").propagate = False
+    logging.getLogger("uvicorn.access").propagate = False
