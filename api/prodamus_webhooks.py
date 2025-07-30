@@ -52,6 +52,8 @@ async def prodamus_webhook(request: Request):
             raise HTTPException(400, "Invalid JSON data")
 
         print(json_data)
+        print(json_data)
+        print(json_data)
 
         if json_data.get('payment_type') == 'Автоплатеж':
             subscription = json_data.get('subscription')

@@ -4,7 +4,6 @@ from api.prodamus_link_gen import generate_payment_link, generate_cancel_link
 
 
 async def create_sub_buttons(user):
-
     one_mounth_url = await generate_payment_link(
                     user.telegram_id,
                     "Подписка на канал 1 месяц",
@@ -32,7 +31,6 @@ async def create_sub_buttons(user):
             ]
         ]
     )
-
     return SUBSCRIPTION_BUTTONS
 
 async def inventation_buttons(invite_link):

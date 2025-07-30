@@ -15,17 +15,29 @@ locale.setlocale(locale.LC_TIME, 'russian')
 async def new_subscriber_message(telegram_id: int, sub_type: str):
     if str(telegram_id) in ADMIN_USERS_IDS.split(','):
         user = await get_user_by_telegram_id(telegram_id)
-        # Отправляем админское сообщение
-        await ad_bot.send_message(
-            chat_id=telegram_id,
-            text=f"🛠 Админ: новая подписка {sub_type} для пользователя @{user.username}"
-        )
+
+        # Получаем список всех админов
+        admin_ids = ADMIN_USERS_IDS.split(',')
+
+        # Отправляем уведомление каждому админу
+        for admin_id in admin_ids:
+            if admin_id.strip():  # Проверяем, что ID не пустой
+                try:
+                    await ad_bot.send_message(
+                        chat_id=int(admin_id),
+                        text=f"🛠 Админ: новая подписка {sub_type} для пользователя @{user.username}"
+                    )
+                except Exception as e:
+                    print(f"Ошибка отправки админу {admin_id}: {e}")
 
 @router.message(F.text == "/last5days")
 async def admin_logs_5_days(message: Message):
     if str(message.from_user.id) in ADMIN_USERS_IDS.split(','):
         text = await get_logs_last_n_days(5)
-        await message.answer(text=text)
+        max_length: int = 4096
+        for i in range(0, len(text), max_length):
+            chunk = text[i:i + max_length]
+            await message.answer(chunk)
     else:
         await message.answer(text="У вас нет прав доступа для этого")
 
@@ -33,7 +45,10 @@ async def admin_logs_5_days(message: Message):
 async def admin_logs_10_days(message: Message):
     if str(message.from_user.id) in ADMIN_USERS_IDS.split(','):
         text = await get_logs_last_n_days(10)
-        await message.answer(text=text)
+        max_length: int = 4096
+        for i in range(0, len(text), max_length):
+            chunk = text[i:i + max_length]
+            await message.answer(chunk)
     else:
         await message.answer(text="У вас нет прав доступа для этого")
 
@@ -41,7 +56,10 @@ async def admin_logs_10_days(message: Message):
 async def admin_logs_30_days(message: Message):
     if str(message.from_user.id) in ADMIN_USERS_IDS.split(','):
         text = await get_logs_last_n_days(30)
-        await message.answer(text=text)
+        max_length: int = 4096
+        for i in range(0, len(text), max_length):
+            chunk = text[i:i + max_length]
+            await message.answer(chunk)
 
     else:
         await message.answer(text="У вас нет прав доступа для этого")
@@ -57,6 +75,9 @@ async def search_logs_by_date(message: Message):
         year, month, day = map(int, date_str.split('-'))
         target_date = datetime.date(year, month, day)
         text = await get_logs_by_date(target_date)
-        await message.answer(text=text)
+        max_length: int = 4096
+        for i in range(0, len(text), max_length):
+            chunk = text[i:i + max_length]
+            await message.answer(chunk)
     except ValueError:
         await message.answer("Неправильный формат даты. Используйте: /search ГГГГ-ММ-ДД")

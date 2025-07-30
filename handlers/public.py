@@ -75,16 +75,14 @@ async def start_handler(message: Message):
 
     telegram_id = message.from_user.id
     username = message.from_user.username
-
-    if await get_subscription_by_telegram_id(telegram_id):
-        return
+    #if await get_subscription_by_telegram_id(telegram_id):
+        #return
 
     user = await db_qr.get_user_by_telegram_id(telegram_id=telegram_id)
-
     # если пользователя новый — создаём запись
     if not user:
         user = await db_qw.insert_new_user(telegram_id=telegram_id, username=username)
-
+    print("public 4")
     await message.answer_photo(
         photo='AgACAgIAAxkBAAMWaHrchaWhIZmSwdRSDsIF9vREjh8AAv73MRt2IdFL4q2W-pnEhhYBAAMCAAN4AAM2BA',
         caption=tm.START_MESSAGE,

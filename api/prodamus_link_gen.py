@@ -42,7 +42,7 @@ async def generate_payment_link(telegram_id: int, product_name: str, product_pri
     elif "3" in product_name:
         sub_id = 2430080
 
-    #sub_id = 2430073
+    sub_id = 2430073
 
     # Параметры массива products, Лучше формировать его не в этой части кода, Так сделано для наглядности
     """ Логику формирование массива можно менять,
